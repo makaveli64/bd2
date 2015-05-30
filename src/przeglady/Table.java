@@ -8,13 +8,13 @@ import java.awt.*;
  */
 public class Table extends JFrame {
     JTable table;
-    JScrollPane pane;
 
     Table(JTable table) {
         this.table = table;
-        this.table.setPreferredScrollableViewportSize(new Dimension(500, 70));
-        pane = new JScrollPane(this.table);
+//        this.table.setPreferredScrollableViewportSize(new Dimension(500, 70));
         this.table.setFillsViewportHeight(true);
+        add(new JScrollPane(this.table));
+        pack();
     }
 
     public static void start(final JTable table) {
