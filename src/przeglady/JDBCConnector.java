@@ -1,7 +1,6 @@
 package przeglady;
 
 import java.sql.*;
-import oracle.jdbc.driver.*;
 
 public class JDBCConnector {
     private Connection connection;

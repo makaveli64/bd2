@@ -10,6 +10,7 @@ public class Table extends JFrame {
     JTable table;
 
     Table(JTable table) {
+        setTitle("Table");
         this.table = table;
 //        this.table.setPreferredScrollableViewportSize(new Dimension(500, 70));
         this.table.setFillsViewportHeight(true);
@@ -18,7 +19,6 @@ public class Table extends JFrame {
     }
 
     public static void start(final JTable table) {
-
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {

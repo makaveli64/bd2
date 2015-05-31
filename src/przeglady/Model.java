@@ -21,8 +21,8 @@ public class Model extends JFrame {
     JButton selectButton;
     JButton insertButton;
 
+    JLabel sqlLabel;
     JTable table;
-    JScrollPane pane;
 
     Vector<String> columnNames;
     Vector<Vector> data;
@@ -32,6 +32,10 @@ public class Model extends JFrame {
     }
 
     private void initComponents() {
+//        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setTitle("Model");
+        sqlLabel = new JLabel();
+
         idField = new JTextField();
         idLabel = new JLabel();
 
@@ -40,25 +44,6 @@ public class Model extends JFrame {
 
         insertButton = new JButton();
         selectButton = new JButton();
-
-//
-/*
-        data = new Vector<Vector>();
-        columnNames = new Vector<String>();
-        columnNames.add("111");
-        columnNames.add("222");
-        Vector<Object> a = new Vector<Object>();
-        a.add("STRING111");
-        a.add("STRING222");
-        data.add(a);
-*/
-//
-
-        table = new JTable();
-        pane = new JScrollPane(table);
-
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setTitle("Model");
 
         idLabel.setText("Identyfikator modelu: ");
         nameLabel.setText("Nazwa modelu: ");
@@ -109,9 +94,7 @@ public class Model extends JFrame {
                                         .addGroup(layout.createSequentialGroup()
                                                 .addComponent(insertButton)
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(selectButton))
-                                        .addGroup(layout.createSequentialGroup()
-                                                .addComponent(pane)))
+                                                .addComponent(selectButton)))
                                 .addContainerGap(27, Short.MAX_VALUE))
         );
 
@@ -128,11 +111,13 @@ public class Model extends JFrame {
                                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                         .addComponent(nameField)
                                         .addComponent(nameLabel))
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                         .addComponent(insertButton)
                                         .addComponent(selectButton))
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                        .addComponent(pane))
+                                        .addComponent(nameLabel))
                                 .addContainerGap(21, Short.MAX_VALUE))
         );
 
@@ -143,7 +128,7 @@ public class Model extends JFrame {
         JDBCConnector connector = new JDBCConnector();
         Connection connection;
         PreparedStatement ps;
-//        connector.connection = null;
+
         int id = Integer.parseInt(idField.getText());
         String name = nameField.getText();
         String query = "INSERT INTO \"Model\" (\"id_modelu\", \"nazwa\") VALUES (?, ?)";
@@ -175,8 +160,13 @@ public class Model extends JFrame {
 
         if (idField.getText() != null) {
             if (!idField.getText().equals("")) {
-                id = Integer.parseInt(idField.getText());
-                isIdCorrect = true;
+//                System.out.println("id:");
+                try {
+                    id = Integer.parseInt(idField.getText());
+                    isIdCorrect = true;
+                } catch (NumberFormatException e) {
+                    throw new Exception("Incorrect value: " + idField.getText());
+                }
             }
         }
 
@@ -233,8 +223,8 @@ public class Model extends JFrame {
 
             if (rs != null) {
                 md = rs.getMetaData();
-//               TODO --> table
                 Vector<Object> column = new Vector<Object>();
+
                 while (rs.next()) {
                     for (int j = 1; j < md.getColumnCount() + 1; j++) {
                         column.add(rs.getString(j));
@@ -244,21 +234,19 @@ public class Model extends JFrame {
                     data.add(column);
                 }
 
+                if (!columnNames.isEmpty())
+                    table = new JTable(data, columnNames);
+                else
+                    columnNames.add("No rows extracted");
+
                 table = new JTable(data, columnNames);
-                pane = new JScrollPane(table);
-                table.setFillsViewportHeight(true);
-/*
-                for (int i = 1; rs.next(); i++) {
-                    for (int j = 1; j < md.getColumnCount(); j++)
-                        column.add(j, rs.getInt(j));
-                    data.add(i, column);
-                }
-*/
-                pane.repaint();
                 Table.start(table);
+/*
+                    throw new Exception("sfjkfkds");
                 System.out.println(data.size());
                 for (int i = 0; i < data.size(); i++)
                     System.out.println(data.get(i));
+*/
             }
         } catch (Exception e) {
             throw new SQLException(e);

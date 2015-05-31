@@ -16,11 +16,11 @@ public class Main extends JFrame {
     }
 
     private void initComponents() {
+        setTitle("Main screen");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
         modelButton = new JButton();
         pojazdButton = new JButton();
-
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setTitle("Main screen");
 
         modelButton.setText("Model");
         pojazdButton.setText("Pojazd");
@@ -69,7 +69,7 @@ public class Main extends JFrame {
     }
 
     private void pojazd(ActionEvent evt) {
-        // TODO
+        // --> TODO -->
     }
 
     public static void main(String[] args) {
