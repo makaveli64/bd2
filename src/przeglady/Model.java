@@ -1,11 +1,12 @@
 package przeglady;
 
-import oracle.jdbc.driver.OracleDriver;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
+import java.util.Vector;
+
+import oracle.jdbc.driver.OracleDriver;
 
 /**
  * Created by user
@@ -20,11 +21,21 @@ public class Model extends JFrame {
     JButton selectButton;
     JButton insertButton;
 
+    JLabel sqlLabel;
+    JTable table;
+
+    Vector<String> columnNames;
+    Vector<Vector> data;
+
     public Model() {
         initComponents();
     }
 
     private void initComponents() {
+//        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setTitle("Model");
+        sqlLabel = new JLabel();
+
         idField = new JTextField();
         idLabel = new JLabel();
 
@@ -33,9 +44,6 @@ public class Model extends JFrame {
 
         insertButton = new JButton();
         selectButton = new JButton();
-
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setTitle("Model");
 
         idLabel.setText("Identyfikator modelu: ");
         nameLabel.setText("Nazwa modelu: ");
@@ -69,6 +77,7 @@ public class Model extends JFrame {
 
         GroupLayout layout = new GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
+
         layout.setHorizontalGroup(
                 layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                         .addGroup(layout.createSequentialGroup()
@@ -89,7 +98,7 @@ public class Model extends JFrame {
                                 .addContainerGap(27, Short.MAX_VALUE))
         );
 
-        layout.linkSize(SwingConstants.HORIZONTAL, new Component[] {insertButton, nameField, idField});
+        layout.linkSize(SwingConstants.HORIZONTAL, new Component[] {selectButton, nameField, idField});
 
         layout.setVerticalGroup(
                 layout.createParallelGroup(GroupLayout.Alignment.LEADING)
@@ -102,9 +111,13 @@ public class Model extends JFrame {
                                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                         .addComponent(nameField)
                                         .addComponent(nameLabel))
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                         .addComponent(insertButton)
                                         .addComponent(selectButton))
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                        .addComponent(nameLabel))
                                 .addContainerGap(21, Short.MAX_VALUE))
         );
 
@@ -113,18 +126,12 @@ public class Model extends JFrame {
 
     private void insert() throws SQLException {
         JDBCConnector connector = new JDBCConnector();
-
+        Connection connection;
         PreparedStatement ps;
-        connector.connection = null;
-
-        String username = "idzemian";
-        String password = "idzemian";
-
-        String url = "jdbc:oracle:thin:@ora3.elka.pw.edu.pl:1521:ora3inf";
-        String query = "INSERT INTO \"Model\" (\"id_modelu\", \"nazwa\") VALUES (?, ?)";
 
         int id = Integer.parseInt(idField.getText());
         String name = nameField.getText();
+        String query = "INSERT INTO \"Model\" (\"id_modelu\", \"nazwa\") VALUES (?, ?)";
 
         try {
             DriverManager.registerDriver(new OracleDriver());
@@ -134,8 +141,8 @@ public class Model extends JFrame {
         }
 
         try {
-            connector.connection = DriverManager.getConnection(url, username, password);
-            ps = connector.connection.prepareStatement(query);
+            connection = connector.getConnection();
+            ps = connection.prepareStatement(query);
             ps.setInt(1, id);
             ps.setString(2, name);
             ps.executeQuery();
@@ -147,15 +154,19 @@ public class Model extends JFrame {
     private void select() throws Exception {
         boolean isIdCorrect = false;
         boolean isNameCorrect = false;
-        int params = 0;
 
         int id = 0;
         String name = "";
 
         if (idField.getText() != null) {
             if (!idField.getText().equals("")) {
-                id = Integer.parseInt(idField.getText());
-                isIdCorrect = true;
+//                System.out.println("id:");
+                try {
+                    id = Integer.parseInt(idField.getText());
+                    isIdCorrect = true;
+                } catch (NumberFormatException e) {
+                    throw new Exception("Incorrect value: " + idField.getText());
+                }
             }
         }
 
@@ -177,41 +188,65 @@ public class Model extends JFrame {
         }
 
         JDBCConnector connector = new JDBCConnector();
+        Connection connection;
+
         PreparedStatement ps;
-        ResultSet rs = null;
-        connector.connection = null;
+        ResultSet rs;
+        ResultSetMetaData md;
 
-        String username = "idzemian";
-        String password = "idzemian";
-
-        String url = "jdbc:oracle:thin:@ora3.elka.pw.edu.pl:1521:ora3inf";
         String query = "SELECT * FROM \"Model\" WHERE";
 
         try {
-            connector.connection = DriverManager.getConnection(url, username, password);
+            connection = connector.getConnection();
 
             if (isIdCorrect && isNameCorrect) {
                 query += " \"id_modelu\" = ? AND \"nazwa\" LIKE ?";
-                ps = connector.connection.prepareStatement(query);
+                ps = connection.prepareStatement(query);
                 ps.setInt(1, id);
-                ps.setString(2, name);
+                ps.setString(2, "%" + name + "%");
                 rs = ps.executeQuery();
             } else if (isIdCorrect && !isNameCorrect) {
                 query += " \"id_modelu\" = ?";
-                ps = connector.connection.prepareStatement(query);
+                ps = connection.prepareStatement(query);
                 ps.setInt(1, id);
                 rs = ps.executeQuery();
             } else if (!isIdCorrect && isNameCorrect) {
                 query += " \"nazwa\" LIKE ?";
-                ps = connector.connection.prepareStatement(query);
+                ps = connection.prepareStatement(query);
                 ps.setString(1, "%" + name + "%");
                 rs = ps.executeQuery();
             } else
                 throw new Exception("Incorrect values");
 
+            columnNames = new Vector<String>();
+            data = new Vector<Vector>();
+
             if (rs != null) {
-                rs.next();
-                System.out.println(rs.getString(2));
+                md = rs.getMetaData();
+                Vector<Object> column = new Vector<Object>();
+
+                while (rs.next()) {
+                    for (int j = 1; j < md.getColumnCount() + 1; j++) {
+                        column.add(rs.getString(j));
+                        columnNames.add(md.getColumnName(j));
+                    }
+
+                    data.add(column);
+                }
+
+                if (!columnNames.isEmpty())
+                    table = new JTable(data, columnNames);
+                else
+                    columnNames.add("No rows extracted");
+
+                table = new JTable(data, columnNames);
+                Table.start(table);
+/*
+                    throw new Exception("sfjkfkds");
+                System.out.println(data.size());
+                for (int i = 0; i < data.size(); i++)
+                    System.out.println(data.get(i));
+*/
             }
         } catch (Exception e) {
             throw new SQLException(e);
@@ -219,8 +254,6 @@ public class Model extends JFrame {
     }
 
     public static void start() {
-        //Schedule a job for the event-dispatching thread:
-        //creating and showing this application's GUI.
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
