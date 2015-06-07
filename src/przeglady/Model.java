@@ -21,6 +21,9 @@ public class Model extends JFrame {
     JButton selectButton;
     JButton insertButton;
 
+    JButton updateButton;
+    JButton deleteButton;
+
     JLabel sqlLabel;
     JTable table;
 
@@ -45,11 +48,17 @@ public class Model extends JFrame {
         insertButton = new JButton();
         selectButton = new JButton();
 
+        updateButton = new JButton();
+        deleteButton = new JButton();
+
         idLabel.setText("Identyfikator modelu: ");
         nameLabel.setText("Nazwa modelu: ");
 
         insertButton.setText("Dodaj");
         selectButton.setText("Wyszukaj");
+
+        updateButton.setText("Zmodyfikuj");
+        deleteButton.setText("Usuń");
 
         insertButton.addActionListener(new ActionListener() {
             @Override
@@ -67,11 +76,16 @@ public class Model extends JFrame {
             public void actionPerformed(ActionEvent actionEvent) {
                 try {
                     select();
-                } catch (SQLException e) {
-                    System.out.println(e.getMessage());
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
+            }
+        });
+
+        updateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+
             }
         });
 
@@ -94,7 +108,11 @@ public class Model extends JFrame {
                                         .addGroup(layout.createSequentialGroup()
                                                 .addComponent(insertButton)
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(selectButton)))
+                                                .addComponent(selectButton)
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(updateButton)
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(deleteButton)))
                                 .addContainerGap(27, Short.MAX_VALUE))
         );
 
@@ -114,7 +132,9 @@ public class Model extends JFrame {
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                         .addComponent(insertButton)
-                                        .addComponent(selectButton))
+                                        .addComponent(selectButton)
+                                        .addComponent(updateButton)
+                                        .addComponent(deleteButton))
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                         .addComponent(nameLabel))
@@ -251,6 +271,17 @@ public class Model extends JFrame {
         } catch (Exception e) {
             throw new SQLException(e);
         }
+    }
+
+    private void update() throws SQLException {
+        JDBCConnector connector = new JDBCConnector();
+        Connection connection;
+        PreparedStatement ps;
+//        ResultSet rs;
+
+        int id = Integer.parseInt(idField.getText());
+        String name = nameField.getText();
+        String query = "UPDATE \"Model\" set \"id_modelu\" = ?, \"nazwa\" = ?";
     }
 
     public static void start() {

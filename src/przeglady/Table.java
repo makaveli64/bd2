@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * Created by user on 30.05.15.
+ * Created by user
  */
 public class Table extends JFrame {
     JTable table;
