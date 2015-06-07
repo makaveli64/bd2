@@ -243,16 +243,17 @@ public class Model extends JFrame {
 
             if (rs != null) {
                 md = rs.getMetaData();
-                Vector<Object> column = new Vector<Object>();
+                Vector<Object> column;// = new Vector<Object>();
 
                 while (rs.next()) {
-                    for (int j = 1; j < md.getColumnCount() + 1; j++) {
-                        column.add(rs.getString(j));
-                        columnNames.add(md.getColumnName(j));
-                    }
-
+                    column = new Vector<Object>();
+                    for (int i = 1; i < md.getColumnCount() + 1; i++)
+                        column.add(rs.getString(i));
                     data.add(column);
                 }
+
+                for (int i = 1; i < md.getColumnCount() + 1; i++)
+                    columnNames.add(md.getColumnName(i));
 
                 if (!columnNames.isEmpty())
                     table = new JTable(data, columnNames);
@@ -273,6 +274,7 @@ public class Model extends JFrame {
         }
     }
 
+    // --> TODO --> move to table class
     private void update() throws SQLException {
         JDBCConnector connector = new JDBCConnector();
         Connection connection;
