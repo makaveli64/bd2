@@ -108,11 +108,7 @@ public class Model extends JFrame {
                                         .addGroup(layout.createSequentialGroup()
                                                 .addComponent(insertButton)
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(selectButton)
-                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(updateButton)
-                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(deleteButton)))
+                                                .addComponent(selectButton)))
                                 .addContainerGap(27, Short.MAX_VALUE))
         );
 
@@ -132,12 +128,8 @@ public class Model extends JFrame {
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                         .addComponent(insertButton)
-                                        .addComponent(selectButton)
-                                        .addComponent(updateButton)
-                                        .addComponent(deleteButton))
+                                        .addComponent(selectButton))
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                        .addComponent(nameLabel))
                                 .addContainerGap(21, Short.MAX_VALUE))
         );
 
@@ -272,18 +264,6 @@ public class Model extends JFrame {
         } catch (Exception e) {
             throw new SQLException(e);
         }
-    }
-
-    // --> TODO --> move to table class
-    private void update() throws SQLException {
-        JDBCConnector connector = new JDBCConnector();
-        Connection connection;
-        PreparedStatement ps;
-//        ResultSet rs;
-
-        int id = Integer.parseInt(idField.getText());
-        String name = nameField.getText();
-        String query = "UPDATE \"Model\" set \"id_modelu\" = ?, \"nazwa\" = ?";
     }
 
     public static void start() {

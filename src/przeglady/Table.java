@@ -1,16 +1,22 @@
 package przeglady;
 
+import oracle.jdbc.OracleDriver;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
+import java.sql.*;
 
 /**
  * Created by user
  */
-public class Table extends JPanel {
+public class Table extends JPanel implements ActionListener {
     JTable table;
 
     JButton updateButton;
     JButton deleteButton;
+
+    int[] ids;
 
     Table(JTable table) {
         super();
@@ -34,6 +40,22 @@ public class Table extends JPanel {
         buttonPanel.add(deleteButton);
 
         add(buttonPanel);
+
+        ids = new int[this.table.getRowCount()];
+
+        for (int i = 0; i < ids.length; i++)
+            ids[i] = Integer.parseInt(this.table.getValueAt(i, 0).toString());
+
+        updateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                try {
+                    update();
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+        });
 
 /*
         GroupLayout layout = new GroupLayout(this);
@@ -71,6 +93,58 @@ public class Table extends JPanel {
 //        add(boxLayout);
     }
 
+    private void update() throws SQLException {
+        JDBCConnector connector = new JDBCConnector();
+        Connection connection;
+        PreparedStatement ps;
+
+        int[] selectedRows = table.getSelectedRows();
+
+        for (int i = 0; i < selectedRows.length; i++) {
+/*
+            for (int j = 0; j < table.getColumnCount(); j++)
+                System.out.println(table.getValueAt(selectedRows[i], j));
+*/
+            String query = "UPDATE \"Model\" set \"id_modelu\" = ?, \"nazwa\" = ? WHERE \"id_modelu\" = ?";
+            try {
+                DriverManager.registerDriver(new OracleDriver());
+            } catch (SQLException e) {
+                System.out.println(e.getMessage() + "Cannot find the proper driver");
+                System.exit(-1);
+            }
+
+            try {
+                connection = connector.getConnection();
+                ps = connection.prepareStatement(query);
+                ps.setString(1, table.getValueAt(selectedRows[i], 0).toString());
+                ps.setString(2, table.getValueAt(selectedRows[i], 1).toString());
+                ps.setInt(3, ids[selectedRows[i]]);
+                ps.executeQuery();
+/*
+                System.out.println(query);
+                System.out.println(table.getValueAt(selectedRows[i], 0).toString());
+                System.out.println(table.getValueAt(selectedRows[i], 1).toString());
+                for (int j = 0; j < selectedRows.length; j++)
+                    System.out.println("Selected row: " + selectedRows[j]);
+                for (int j = 0; j < selectedRows.length; j++)
+                    System.out.println("Value at " + j + " : " + ids[selectedRows[j]]);
+*/
+            } catch (Exception e) {
+                throw new SQLException(e);
+            }
+        }
+/*
+        for (int i = 0; i < selectedRows.length; i++)
+            for (int j = 0; j < table.getColumnCount(); j++)
+                System.out.println(table.getValueAt(table.getSelectedRows()[i], j));
+*/
+//                System.out.println(i + ". " + selectedRows[i]);
+//        ResultSet rs;
+
+//        int id = Integer.parseInt(idField.getText());
+//        String name = nameField.getText();
+    }
+
     private static void showTable(JTable table) {
         UIManager.put("swing.boldMetal", Boolean.FALSE);
         JFrame frame = new JFrame("Table");
@@ -83,11 +157,17 @@ public class Table extends JPanel {
         frame.setVisible(true);
     }
 
+    @Override
+    public void actionPerformed(ActionEvent actionEvent) {
+        // TODO
+//        String command = actionEvent.getActionCommand();
+//        System.out.println("1. " + command);
+    }
+
     public static void start(final JTable table) {
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-//                new Table(table).setVisible(true);
                 showTable(table);
             }
         });
