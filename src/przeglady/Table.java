@@ -10,7 +10,7 @@ import java.sql.*;
 /**
  * Created by user
  */
-public class Table extends JPanel implements ActionListener {
+public class Table extends JPanel {
     JTable table;
 
     JButton updateButton;
@@ -28,7 +28,6 @@ public class Table extends JPanel implements ActionListener {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         add(new JScrollPane(this.table));
 //        add(new JLabel("Operacje:"));
-
         updateButton = new JButton();
         deleteButton = new JButton();
 
@@ -40,7 +39,6 @@ public class Table extends JPanel implements ActionListener {
         buttonPanel.add(deleteButton);
 
         add(buttonPanel);
-
         ids = new int[this.table.getRowCount()];
 
         for (int i = 0; i < ids.length; i++)
@@ -53,6 +51,17 @@ public class Table extends JPanel implements ActionListener {
                     update();
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
+                }
+            }
+        });
+
+        deleteButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                try {
+                    delete();
+                } catch (Exception e) {
+                    // TODO
                 }
             }
         });
@@ -105,7 +114,7 @@ public class Table extends JPanel implements ActionListener {
             for (int j = 0; j < table.getColumnCount(); j++)
                 System.out.println(table.getValueAt(selectedRows[i], j));
 */
-            String query = "UPDATE \"Model\" set \"id_modelu\" = ?, \"nazwa\" = ? WHERE \"id_modelu\" = ?";
+            String query = "UPDATE \"Model\" SET \"id_modelu\" = ?, \"nazwa\" = ? WHERE \"id_modelu\" = ?";
             try {
                 DriverManager.registerDriver(new OracleDriver());
             } catch (SQLException e) {
@@ -145,6 +154,35 @@ public class Table extends JPanel implements ActionListener {
 //        String name = nameField.getText();
     }
 
+    private void delete() throws SQLException {
+        JDBCConnector connector = new JDBCConnector();
+        Connection connection;
+        PreparedStatement ps;
+
+        int[] selectedRows = table.getSelectedRows();
+
+        for (int i = 0; i < selectedRows.length; i++) {
+            String query = "DELETE FROM \"Model\" WHERE \"id_modelu\" = ?";
+            try {
+                DriverManager.registerDriver(new OracleDriver());
+            } catch (SQLException e) {
+                System.out.println(e.getMessage() + "Cannot find the proper driver");
+                System.exit(-1);
+            }
+
+            try {
+                connection = connector.getConnection();
+                ps = connection.prepareStatement(query);
+                ps.setInt(1, ids[selectedRows[i]]);
+                ps.executeQuery();
+//                System.out.println(query);
+//                System.out.println(ids[selectedRows[i]]);
+            } catch (Exception e) {
+                throw new SQLException(e);
+            }
+        }
+    }
+
     private static void showTable(JTable table) {
         UIManager.put("swing.boldMetal", Boolean.FALSE);
         JFrame frame = new JFrame("Table");
@@ -155,13 +193,6 @@ public class Table extends JPanel implements ActionListener {
         frame.setContentPane(tablePane);
         frame.pack();
         frame.setVisible(true);
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent actionEvent) {
-        // TODO
-//        String command = actionEvent.getActionCommand();
-//        System.out.println("1. " + command);
     }
 
     public static void start(final JTable table) {
