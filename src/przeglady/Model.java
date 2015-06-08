@@ -20,7 +20,8 @@ public class Model extends JFrame {
 
     JButton selectButton;
     JButton insertButton;
-
+//    JButton updateButton;
+//    JButton deleteButton;
     JLabel sqlLabel;
     JTable table;
 
@@ -44,13 +45,15 @@ public class Model extends JFrame {
 
         insertButton = new JButton();
         selectButton = new JButton();
-
+//        updateButton = new JButton();
+//        deleteButton = new JButton();
         idLabel.setText("Identyfikator modelu: ");
         nameLabel.setText("Nazwa modelu: ");
 
         insertButton.setText("Dodaj");
         selectButton.setText("Wyszukaj");
-
+//        updateButton.setText("Zmodyfikuj");
+//        deleteButton.setText("Usuń");
         insertButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -67,14 +70,19 @@ public class Model extends JFrame {
             public void actionPerformed(ActionEvent actionEvent) {
                 try {
                     select();
-                } catch (SQLException e) {
-                    System.out.println(e.getMessage());
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
             }
         });
+/*
+        updateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
 
+            }
+        });
+*/
         GroupLayout layout = new GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
 
@@ -116,8 +124,6 @@ public class Model extends JFrame {
                                         .addComponent(insertButton)
                                         .addComponent(selectButton))
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                        .addComponent(nameLabel))
                                 .addContainerGap(21, Short.MAX_VALUE))
         );
 
@@ -223,16 +229,17 @@ public class Model extends JFrame {
 
             if (rs != null) {
                 md = rs.getMetaData();
-                Vector<Object> column = new Vector<Object>();
+                Vector<Object> column;// = new Vector<Object>();
 
                 while (rs.next()) {
-                    for (int j = 1; j < md.getColumnCount() + 1; j++) {
-                        column.add(rs.getString(j));
-                        columnNames.add(md.getColumnName(j));
-                    }
-
+                    column = new Vector<Object>();
+                    for (int i = 1; i < md.getColumnCount() + 1; i++)
+                        column.add(rs.getString(i));
                     data.add(column);
                 }
+
+                for (int i = 1; i < md.getColumnCount() + 1; i++)
+                    columnNames.add(md.getColumnName(i));
 
                 if (!columnNames.isEmpty())
                     table = new JTable(data, columnNames);
