@@ -20,10 +20,8 @@ public class Model extends JFrame {
 
     JButton selectButton;
     JButton insertButton;
-
-    JButton updateButton;
-    JButton deleteButton;
-
+//    JButton updateButton;
+//    JButton deleteButton;
     JLabel sqlLabel;
     JTable table;
 
@@ -47,19 +45,15 @@ public class Model extends JFrame {
 
         insertButton = new JButton();
         selectButton = new JButton();
-
-        updateButton = new JButton();
-        deleteButton = new JButton();
-
+//        updateButton = new JButton();
+//        deleteButton = new JButton();
         idLabel.setText("Identyfikator modelu: ");
         nameLabel.setText("Nazwa modelu: ");
 
         insertButton.setText("Dodaj");
         selectButton.setText("Wyszukaj");
-
-        updateButton.setText("Zmodyfikuj");
-        deleteButton.setText("Usuń");
-
+//        updateButton.setText("Zmodyfikuj");
+//        deleteButton.setText("Usuń");
         insertButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -81,14 +75,14 @@ public class Model extends JFrame {
                 }
             }
         });
-
+/*
         updateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
 
             }
         });
-
+*/
         GroupLayout layout = new GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
 
