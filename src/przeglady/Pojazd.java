@@ -4,10 +4,8 @@ import oracle.jdbc.driver.OracleDriver;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.Vector;
 
 /**
@@ -291,8 +289,8 @@ public class Pojazd extends JFrame {
                     else
                         break;
 
-            System.out.println(rejestracja);
-            System.out.println(query);
+//            System.out.println(rejestracja);
+//            System.out.println(query);
             rs = ps.executeQuery();
             columnNames = new Vector<String>();
             data = new Vector<Vector>();
