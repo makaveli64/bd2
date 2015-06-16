@@ -9,6 +9,7 @@ import javax.swing.*;
  */
 public class Main extends JFrame {
     JButton modelButton;
+    JButton typPojazduButton;
     JButton pojazdButton;
 
     public Main() {
@@ -20,9 +21,11 @@ public class Main extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         modelButton = new JButton();
+        typPojazduButton = new JButton();
         pojazdButton = new JButton();
 
         modelButton.setText("Model");
+        typPojazduButton.setText("Typ pojazdu");
         pojazdButton.setText("Pojazd");
 
         modelButton.addActionListener(new ActionListener() {
@@ -31,11 +34,16 @@ public class Main extends JFrame {
                 Model.start();
             }
         });
-
+        typPojazduButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                TypPojazdu.start();
+            }
+        });
         pojazdButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                pojazd(actionEvent);
+//                pojazd(actionEvent);
             }
         });
 
@@ -49,6 +57,8 @@ public class Main extends JFrame {
                                         .addGroup(layout.createSequentialGroup()
                                                 .addComponent(modelButton))
                                         .addGroup(layout.createSequentialGroup()
+                                                .addComponent(typPojazduButton))
+                                        .addGroup(layout.createSequentialGroup()
                                                 .addComponent(pojazdButton)))
                                 .addContainerGap(27, Short.MAX_VALUE))
         );
@@ -60,6 +70,9 @@ public class Main extends JFrame {
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                         .addComponent(modelButton))
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(typPojazduButton))
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                         .addComponent(pojazdButton))
                                 .addContainerGap(21, Short.MAX_VALUE))
@@ -67,11 +80,10 @@ public class Main extends JFrame {
 
         pack();
     }
-
+/*
     private void pojazd(ActionEvent evt) {
-        // --> TODO -->
     }
-
+*/
     public static void main(String[] args) {
         EventQueue.invokeLater(new Runnable() {
             @Override

@@ -1,22 +1,23 @@
 package przeglady;
 
+import oracle.jdbc.driver.OracleDriver;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.*;
 import java.util.Vector;
-
-import oracle.jdbc.driver.OracleDriver;
 
 /**
  * Created by user
  */
-public class Model extends JFrame {
+public class TypPojazdu extends JFrame {
     JTextField idField;
     JLabel idLabel;
 
-    JTextField nameField;
-    JLabel nameLabel;
+    JTextField typField;
+    JLabel typLabel;
 
     JButton selectButton;
     JButton insertButton;
@@ -26,24 +27,24 @@ public class Model extends JFrame {
     Vector<String> columnNames;
     Vector<Vector> data;
 
-    public Model() {
+    public TypPojazdu() {
         initComponents();
     }
 
     private void initComponents() {
-        setTitle("Model");
+        setTitle("Typ pojazdu");
 //        sqlLabel = new JLabel();
         idField = new JTextField();
         idLabel = new JLabel();
 
-        nameField = new JTextField();
-        nameLabel = new JLabel();
+        typField = new JTextField();
+        typLabel = new JLabel();
 
         insertButton = new JButton();
         selectButton = new JButton();
 
-        idLabel.setText("Identyfikator modelu: ");
-        nameLabel.setText("Nazwa modelu: ");
+        idLabel.setText("Identyfikator typu pojazdu: ");
+        typLabel.setText("Nazwa typu: ");
 
         insertButton.setText("Dodaj");
         selectButton.setText("Wyszukaj");
@@ -83,9 +84,9 @@ public class Model extends JFrame {
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                                 .addComponent(idField))
                                         .addGroup(layout.createSequentialGroup()
-                                                .addComponent(nameLabel)
+                                                .addComponent(typLabel)
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(nameField))
+                                                .addComponent(typField))
                                         .addGroup(layout.createSequentialGroup()
                                                 .addComponent(insertButton)
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
@@ -93,7 +94,7 @@ public class Model extends JFrame {
                                 .addContainerGap(27, Short.MAX_VALUE))
         );
 
-        layout.linkSize(SwingConstants.HORIZONTAL, new Component[] {selectButton, nameField, idField});
+        layout.linkSize(SwingConstants.HORIZONTAL, new Component[] {selectButton, typField, idField});
 
         layout.setVerticalGroup(
                 layout.createParallelGroup(GroupLayout.Alignment.LEADING)
@@ -104,8 +105,8 @@ public class Model extends JFrame {
                                         .addComponent(idLabel))
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                        .addComponent(nameField)
-                                        .addComponent(nameLabel))
+                                        .addComponent(typField)
+                                        .addComponent(typLabel))
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                         .addComponent(insertButton)
@@ -123,8 +124,8 @@ public class Model extends JFrame {
         PreparedStatement ps;
 
         int id = Integer.parseInt(idField.getText());
-        String name = nameField.getText();
-        String query = "INSERT INTO \"Model\" (\"id_modelu\", \"nazwa\") VALUES (?, ?)";
+        String name = typField.getText();
+        String query = "INSERT INTO \"Typ_pojazdu\" (\"id_typu_pojazdu\", \"typ\") VALUES (?, ?)";
 
         try {
             DriverManager.registerDriver(new OracleDriver());
@@ -146,7 +147,7 @@ public class Model extends JFrame {
 
     private void select() throws Exception {
         boolean isIdCorrect = false;
-        boolean isNameCorrect = false;
+        boolean isTypeCorrect = false;
 
         int id = 0;
         String name = "";
@@ -160,13 +161,13 @@ public class Model extends JFrame {
                     throw new Exception("Incorrect value: " + idField.getText());
                 }
 
-        if (nameField.getText() != null)
-            if (!nameField.getText().equals("")) {
-                name = nameField.getText();
-                isNameCorrect = true;
+        if (typField.getText() != null)
+            if (!typField.getText().equals("")) {
+                name = typField.getText();
+                isTypeCorrect = true;
             }
 
-        if (!isIdCorrect && !isNameCorrect)
+        if (!isIdCorrect && !isTypeCorrect)
             throw new Exception("Incorrect values");
 
         try {
@@ -183,24 +184,24 @@ public class Model extends JFrame {
         ResultSet rs;
         ResultSetMetaData md;
 
-        String query = "SELECT * FROM \"Model\" WHERE";
+        String query = "SELECT * FROM \"Typ_pojazdu\" WHERE";
 
         try {
             connection = connector.getConnection();
 
-            if (isIdCorrect && isNameCorrect) {
-                query += " \"id_modelu\" = ? AND \"nazwa\" LIKE ?";
+            if (isIdCorrect && isTypeCorrect) {
+                query += " \"id_typu_pojazdu\" = ? AND \"typ\" LIKE ?";
                 ps = connection.prepareStatement(query);
                 ps.setInt(1, id);
                 ps.setString(2, "%" + name + "%");
                 rs = ps.executeQuery();
-            } else if (isIdCorrect && !isNameCorrect) {
-                query += " \"id_modelu\" = ?";
+            } else if (isIdCorrect && !isTypeCorrect) {
+                query += " \"id_typu_pojazdu\" = ?";
                 ps = connection.prepareStatement(query);
                 ps.setInt(1, id);
                 rs = ps.executeQuery();
-            } else if (!isIdCorrect && isNameCorrect) {
-                query += " \"nazwa\" LIKE ?";
+            } else if (!isIdCorrect && isTypeCorrect) {
+                query += " \"typ\" LIKE ?";
                 ps = connection.prepareStatement(query);
                 ps.setString(1, "%" + name + "%");
                 rs = ps.executeQuery();
@@ -212,7 +213,7 @@ public class Model extends JFrame {
 
             if (rs != null) {
                 md = rs.getMetaData();
-                Vector<Object> column;// = new Vector<Object>();
+                Vector<Object> column;
 
                 while (rs.next()) {
                     column = new Vector<Object>();
@@ -230,7 +231,7 @@ public class Model extends JFrame {
                     columnNames.add("No rows extracted");
 
                 table = new JTable(data, columnNames);
-                ModelTable.start(table);
+                TypPojazduTable.start(table);
             }
         } catch (Exception e) {
             throw new SQLException(e);
@@ -241,7 +242,7 @@ public class Model extends JFrame {
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new Model().setVisible(true);
+                new TypPojazdu().setVisible(true);
             }
         });
     }
