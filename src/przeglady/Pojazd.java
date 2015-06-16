@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Vector;
 
 /**
@@ -21,6 +22,9 @@ public class Pojazd extends JFrame {
 
     JTextField typPojazduField;
     JLabel typPojazduLabel;
+
+    JTextField dataProdukcjiField;
+    JLabel dataProdukcjiLabel;
 
     JButton selectButton;
     JButton insertButton;
@@ -46,17 +50,20 @@ public class Pojazd extends JFrame {
         typPojazduField = new JTextField();
         typPojazduLabel = new JLabel();
 
+        dataProdukcjiField = new JTextField();
+        dataProdukcjiLabel = new JLabel();
+
         insertButton = new JButton();
         selectButton = new JButton();
 
         rejestracjaLabel.setText("Rejestracja pojazdu: ");
         modelLabel.setText("Identyfikator modelu: ");
         typPojazduLabel.setText("Identyfikator typu pojazdu: ");
+        dataProdukcjiLabel.setText("Data produkcji pojazdu: ");
 
         insertButton.setText("Dodaj");
         selectButton.setText("Wyszukaj");
-//        updateButton.setText("Zmodyfikuj");
-//        deleteButton.setText("Usuń");
+
         insertButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -78,14 +85,7 @@ public class Pojazd extends JFrame {
                 }
             }
         });
-/*
-        updateButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
 
-            }
-        });
-*/
         GroupLayout layout = new GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
 
@@ -95,13 +95,21 @@ public class Pojazd extends JFrame {
                                 .addContainerGap()
                                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                                         .addGroup(layout.createSequentialGroup()
-                                                .addComponent(modelLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(rejestracjaLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(rejestracjaField))
+                                        .addGroup(layout.createSequentialGroup()
+                                                .addComponent(modelLabel)
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                                 .addComponent(modelField))
                                         .addGroup(layout.createSequentialGroup()
                                                 .addComponent(typPojazduLabel)
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                                 .addComponent(typPojazduField))
+                                        .addGroup(layout.createSequentialGroup()
+                                                .addComponent(dataProdukcjiLabel)
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(dataProdukcjiField))
                                         .addGroup(layout.createSequentialGroup()
                                                 .addComponent(insertButton)
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
@@ -116,12 +124,20 @@ public class Pojazd extends JFrame {
                         .addGroup(layout.createSequentialGroup()
                                 .addContainerGap()
                                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                        .addComponent(modelField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(rejestracjaField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(rejestracjaLabel))
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                        .addComponent(modelField)
                                         .addComponent(modelLabel))
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                         .addComponent(typPojazduField)
                                         .addComponent(typPojazduLabel))
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                        .addComponent(dataProdukcjiField)
+                                        .addComponent(dataProdukcjiLabel))
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                         .addComponent(insertButton)
@@ -138,9 +154,11 @@ public class Pojazd extends JFrame {
         Connection connection;
         PreparedStatement ps;
 
-        int id = Integer.parseInt(modelField.getText());
-        String name = typPojazduField.getText();
-        String query = "INSERT INTO \"Model\" (\"id_modelu\", \"nazwa\") VALUES (?, ?)";
+        String rejestracja = rejestracjaField.getText();
+        int model = Integer.parseInt(modelField.getText());
+        int typPojazdu = Integer.parseInt(typPojazduField.getText());
+        String dataProdukcji = dataProdukcjiField.getText();
+        String query = "INSERT INTO \"Pojazd\" (\"rejestracja\", \"id_modelu\", \"id_typu_pojazdu\", \"data_produkcji\") VALUES (?, ?, ?, ?)";
 
         try {
             DriverManager.registerDriver(new OracleDriver());
@@ -152,8 +170,10 @@ public class Pojazd extends JFrame {
         try {
             connection = connector.getConnection();
             ps = connection.prepareStatement(query);
-            ps.setInt(1, id);
-            ps.setString(2, name);
+            ps.setString(1, rejestracja);
+            ps.setInt(2, model);
+            ps.setInt(3, typPojazdu);
+            ps.setString(4, dataProdukcji);
             ps.executeQuery();
         } catch (Exception e) {
             throw new SQLException(e);
@@ -161,18 +181,28 @@ public class Pojazd extends JFrame {
     }
 
     private void select() throws Exception {
-        boolean isIdCorrect = false;
-        boolean isNameCorrect = false;
+        boolean isRejestracjaCorrect = false;
+        boolean isModelCorrect = false;
+        boolean isTypPojazduCorrect = false;
+        boolean isDataProdukcjiCorrect = false;
 
-        int id = 0;
-        String name = "";
+        String rejestracja = "";
+        int model = 0;
+        int typPojazdu = 0;
+        String dataProdukcji = "";
+
+        if (rejestracjaField.getText() != null) {
+            if (!rejestracjaField.getText().equals("")) {
+                rejestracja = rejestracjaField.getText();
+                isRejestracjaCorrect = true;
+            }
+        }
 
         if (modelField.getText() != null) {
             if (!modelField.getText().equals("")) {
-//                System.out.println("id:");
                 try {
-                    id = Integer.parseInt(modelField.getText());
-                    isIdCorrect = true;
+                    model = Integer.parseInt(modelField.getText());
+                    isModelCorrect = true;
                 } catch (NumberFormatException e) {
                     throw new Exception("Incorrect value: " + modelField.getText());
                 }
@@ -181,12 +211,23 @@ public class Pojazd extends JFrame {
 
         if (typPojazduField.getText() != null) {
             if (!typPojazduField.getText().equals("")) {
-                name = typPojazduField.getText();
-                isNameCorrect = true;
+                try {
+                    typPojazdu = Integer.parseInt(typPojazduField.getText());
+                    isTypPojazduCorrect = true;
+                } catch (NumberFormatException e) {
+                    throw new Exception("Incorrect value: " + typPojazduField.getText());
+                }
             }
         }
 
-        if (!isIdCorrect && !isNameCorrect)
+        if (dataProdukcjiField.getText() != null) {
+            if (!dataProdukcjiField.getText().equals("")) {
+                dataProdukcji = dataProdukcjiField.getText();
+                isDataProdukcjiCorrect = true;
+            }
+        }
+
+        if (!isRejestracjaCorrect && !isModelCorrect && !isTypPojazduCorrect && !isDataProdukcjiCorrect)
             throw new Exception("Incorrect values");
 
         try {
@@ -203,36 +244,62 @@ public class Pojazd extends JFrame {
         ResultSet rs;
         ResultSetMetaData md;
 
-        String query = "SELECT * FROM \"Model\" WHERE";
+        String query = "SELECT * FROM \"Pojazd\" WHERE";
 
         try {
             connection = connector.getConnection();
+            boolean[] columns = new boolean[4];
 
-            if (isIdCorrect && isNameCorrect) {
-                query += " \"id_modelu\" = ? AND \"nazwa\" LIKE ?";
-                ps = connection.prepareStatement(query);
-                ps.setInt(1, id);
-                ps.setString(2, "%" + name + "%");
-                rs = ps.executeQuery();
-            } else if (isIdCorrect && !isNameCorrect) {
+            if (isRejestracjaCorrect) {
+                query += " \"rejestracja\" LIKE ?";
+                columns[0] = true;
+            }
+
+            if (isModelCorrect) {
+                if (isRejestracjaCorrect)
+                    query += " AND ";
                 query += " \"id_modelu\" = ?";
-                ps = connection.prepareStatement(query);
-                ps.setInt(1, id);
-                rs = ps.executeQuery();
-            } else if (!isIdCorrect && isNameCorrect) {
-                query += " \"nazwa\" LIKE ?";
-                ps = connection.prepareStatement(query);
-                ps.setString(1, "%" + name + "%");
-                rs = ps.executeQuery();
-            } else
-                throw new Exception("Incorrect values");
+                columns[1] = true;
+            }
 
+            if (isTypPojazduCorrect) {
+                if (isRejestracjaCorrect || isModelCorrect)
+                    query += " AND ";
+                query += " \"id_typu_pojazdu\" = ?";
+                columns[2] = true;
+            }
+
+            if (isDataProdukcjiCorrect) {
+                if (isRejestracjaCorrect || isModelCorrect || isDataProdukcjiCorrect)
+                    query += " AND ";
+                query += " \"data_produkcji\" LIKE ?";
+                columns[3] = true;
+            }
+
+            ps = connection.prepareStatement(query);
+
+            for (int i = 0, c = 1; i < columns.length; i++)
+                if (columns[i])
+                    if (i == 0)
+                        ps.setString(c++, "%" + rejestracja + "%");
+                    else if (i == 1)
+                        ps.setInt(c++, model);
+                    else if (i == 2)
+                        ps.setInt(c++, typPojazdu);
+                    else if (i == 3)
+                        ps.setString(c++, "%" + dataProdukcji + "%");
+                    else
+                        break;
+
+            System.out.println(rejestracja);
+            System.out.println(query);
+            rs = ps.executeQuery();
             columnNames = new Vector<String>();
             data = new Vector<Vector>();
 
             if (rs != null) {
                 md = rs.getMetaData();
-                Vector<Object> column;// = new Vector<Object>();
+                Vector<Object> column;
 
                 while (rs.next()) {
                     column = new Vector<Object>();
@@ -250,13 +317,7 @@ public class Pojazd extends JFrame {
                     columnNames.add("No rows extracted");
 
                 table = new JTable(data, columnNames);
-                ModelTable.start(table);
-/*
-                    throw new Exception("sfjkfkds");
-                System.out.println(data.size());
-                for (int i = 0; i < data.size(); i++)
-                    System.out.println(data.get(i));
-*/
+                PojazdTable.start(table);
             }
         } catch (Exception e) {
             throw new SQLException(e);
