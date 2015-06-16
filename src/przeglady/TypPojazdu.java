@@ -4,8 +4,7 @@ import oracle.jdbc.driver.OracleDriver;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.sql.*;
 import java.util.Vector;
 
@@ -124,7 +123,7 @@ public class TypPojazdu extends JFrame {
         PreparedStatement ps;
 
         int id = Integer.parseInt(idField.getText());
-        String name = typField.getText();
+        String typ = typField.getText();
         String query = "INSERT INTO \"Typ_pojazdu\" (\"id_typu_pojazdu\", \"typ\") VALUES (?, ?)";
 
         try {
@@ -138,7 +137,7 @@ public class TypPojazdu extends JFrame {
             connection = connector.getConnection();
             ps = connection.prepareStatement(query);
             ps.setInt(1, id);
-            ps.setString(2, name);
+            ps.setString(2, typ);
             ps.executeQuery();
         } catch (Exception e) {
             throw new SQLException(e);
@@ -150,7 +149,7 @@ public class TypPojazdu extends JFrame {
         boolean isTypeCorrect = false;
 
         int id = 0;
-        String name = "";
+        String typ = "";
 
         if (idField.getText() != null)
             if (!idField.getText().equals(""))
@@ -163,7 +162,7 @@ public class TypPojazdu extends JFrame {
 
         if (typField.getText() != null)
             if (!typField.getText().equals("")) {
-                name = typField.getText();
+                typ = typField.getText();
                 isTypeCorrect = true;
             }
 
@@ -193,7 +192,7 @@ public class TypPojazdu extends JFrame {
                 query += " \"id_typu_pojazdu\" = ? AND \"typ\" LIKE ?";
                 ps = connection.prepareStatement(query);
                 ps.setInt(1, id);
-                ps.setString(2, "%" + name + "%");
+                ps.setString(2, "%" + typ + "%");
                 rs = ps.executeQuery();
             } else if (isIdCorrect && !isTypeCorrect) {
                 query += " \"id_typu_pojazdu\" = ?";
@@ -203,7 +202,7 @@ public class TypPojazdu extends JFrame {
             } else if (!isIdCorrect && isTypeCorrect) {
                 query += " \"typ\" LIKE ?";
                 ps = connection.prepareStatement(query);
-                ps.setString(1, "%" + name + "%");
+                ps.setString(1, "%" + typ + "%");
                 rs = ps.executeQuery();
             } else
                 throw new Exception("Incorrect values");

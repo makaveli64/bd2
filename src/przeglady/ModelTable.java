@@ -136,7 +136,7 @@ public class ModelTable extends JPanel {
                 for (int j = 0; j < selectedRows.length; j++)
                     System.out.println("Selected row: " + selectedRows[j]);
                 for (int j = 0; j < selectedRows.length; j++)
-                    System.out.println("Value at " + j + " : " + ids[selectedRows[j]]);
+                    System.out.println("Value at " + j + " : " + rejestracje[selectedRows[j]]);
 */
             } catch (Exception e) {
                 throw new SQLException(e);
@@ -176,7 +176,7 @@ public class ModelTable extends JPanel {
                 ps.setInt(1, ids[selectedRows[i]]);
                 ps.executeQuery();
 //                System.out.println(query);
-//                System.out.println(ids[selectedRows[i]]);
+//                System.out.println(rejestracje[selectedRows[i]]);
             } catch (Exception e) {
                 throw new SQLException(e);
             }

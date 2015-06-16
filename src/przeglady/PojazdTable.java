@@ -10,15 +10,15 @@ import java.sql.*;
 /**
  * Created by user
  */
-public class TypPojazduTable extends JPanel {
+public class PojazdTable extends JPanel {
     JTable table;
 
     JButton updateButton;
     JButton deleteButton;
 
-    int[] ids;
+    String[] rejestracje;
 
-    TypPojazduTable(JTable table) {
+    PojazdTable(JTable table) {
         super();
 
         this.table = table;
@@ -39,10 +39,10 @@ public class TypPojazduTable extends JPanel {
         buttonPanel.add(deleteButton);
 
         add(buttonPanel);
-        ids = new int[this.table.getRowCount()];
+        rejestracje = new String[this.table.getRowCount()];
 
-        for (int i = 0; i < ids.length; i++)
-            ids[i] = Integer.parseInt(this.table.getValueAt(i, 0).toString());
+        for (int i = 0; i < rejestracje.length; i++)
+            rejestracje[i] = this.table.getValueAt(i, 0).toString();
 
         updateButton.addActionListener(new ActionListener() {
             @Override
@@ -75,7 +75,7 @@ public class TypPojazduTable extends JPanel {
         int[] selectedRows = table.getSelectedRows();
 
         for (int i = 0; i < selectedRows.length; i++) {
-            String query = "UPDATE \"Typ_pojazdu\" SET \"id_typu_pojazdu\" = ?, \"typ\" = ? WHERE \"id_typu_pojazdu\" = ?";
+            String query = "UPDATE \"Pojazd\" SET \"rejestracja\" = ?, \"id_typu_pojazdu\" = ?, \"id_modelu\" = ?, \"data_produkcji\" = ? WHERE \"rejestracja\" = ?";
             try {
                 DriverManager.registerDriver(new OracleDriver());
             } catch (SQLException e) {
@@ -88,7 +88,8 @@ public class TypPojazduTable extends JPanel {
                 ps = connection.prepareStatement(query);
                 ps.setString(1, table.getValueAt(selectedRows[i], 0).toString());
                 ps.setString(2, table.getValueAt(selectedRows[i], 1).toString());
-                ps.setInt(3, ids[selectedRows[i]]);
+                ps.setString(3, table.getValueAt(selectedRows[i], 2).toString());
+                ps.setString(4, rejestracje[selectedRows[i]]);
                 ps.executeQuery();
             } catch (Exception e) {
                 throw new SQLException(e);
@@ -104,7 +105,7 @@ public class TypPojazduTable extends JPanel {
         int[] selectedRows = table.getSelectedRows();
 
         for (int i = 0; i < selectedRows.length; i++) {
-            String query = "DELETE FROM \"Typ_pojazdu\" WHERE \"id_typu_pojazdu\" = ?";
+            String query = "DELETE FROM \"Pojazd\" WHERE \"rejestracja\" = ?";
             try {
                 DriverManager.registerDriver(new OracleDriver());
             } catch (SQLException e) {
@@ -115,7 +116,7 @@ public class TypPojazduTable extends JPanel {
             try {
                 connection = connector.getConnection();
                 ps = connection.prepareStatement(query);
-                ps.setInt(1, ids[selectedRows[i]]);
+                ps.setString(1, rejestracje[selectedRows[i]]);
                 ps.executeQuery();
             } catch (Exception e) {
                 throw new SQLException(e);
@@ -127,7 +128,7 @@ public class TypPojazduTable extends JPanel {
         UIManager.put("swing.boldMetal", Boolean.FALSE);
         JFrame frame = new JFrame("ModelTable");
 
-        TypPojazduTable tablePane = new TypPojazduTable(table);
+        PojazdTable tablePane = new PojazdTable(table);
         tablePane.setOpaque(true);
 
         frame.setContentPane(tablePane);

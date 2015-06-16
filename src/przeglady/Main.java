@@ -43,7 +43,7 @@ public class Main extends JFrame {
         pojazdButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-//                pojazd(actionEvent);
+                Pojazd.start();
             }
         });
 
@@ -80,10 +80,7 @@ public class Main extends JFrame {
 
         pack();
     }
-/*
-    private void pojazd(ActionEvent evt) {
-    }
-*/
+
     public static void main(String[] args) {
         EventQueue.invokeLater(new Runnable() {
             @Override
