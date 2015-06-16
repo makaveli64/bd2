@@ -4,13 +4,17 @@ import oracle.jdbc.OracleDriver;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.sql.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 /**
  * Created by user
  */
-public class Table extends JPanel {
+public class TypPojazduTable extends JPanel {
     JTable table;
 
     JButton updateButton;
@@ -18,7 +22,7 @@ public class Table extends JPanel {
 
     int[] ids;
 
-    Table(JTable table) {
+    TypPojazduTable(JTable table) {
         super();
 
         this.table = table;
@@ -27,7 +31,7 @@ public class Table extends JPanel {
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         add(new JScrollPane(this.table));
-//        add(new JLabel("Operacje:"));
+
         updateButton = new JButton();
         deleteButton = new JButton();
 
@@ -61,45 +65,10 @@ public class Table extends JPanel {
                 try {
                     delete();
                 } catch (Exception e) {
-                    // TODO
+                    System.out.println(e.getMessage());
                 }
             }
         });
-
-/*
-        GroupLayout layout = new GroupLayout(this);
-        setLayout(layout);
-        layout.setHorizontalGroup(
-                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                        .addGroup(layout.createSequentialGroup()
-                                                .addComponent(this.table))
-                                        .addGroup(layout.createSequentialGroup()
-                                                .addComponent(updateButton)
-                                                .addComponent(deleteButton)))
-                                .addContainerGap(27, Short.MAX_VALUE))
-        );
-
-        layout.setVerticalGroup(
-                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                        .addComponent(this.table))
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                        .addComponent(updateButton)
-                                        .addComponent(deleteButton))
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addContainerGap(21, Short.MAX_VALUE))
-        );
-*/
-
-//        BoxLayout boxLayout = new BoxLayout(this, BoxLayout.X_AXIS);
-//        boxLayout.addLayoutComponent();
-//        add(boxLayout);
     }
 
     private void update() throws SQLException {
@@ -110,11 +79,7 @@ public class Table extends JPanel {
         int[] selectedRows = table.getSelectedRows();
 
         for (int i = 0; i < selectedRows.length; i++) {
-/*
-            for (int j = 0; j < table.getColumnCount(); j++)
-                System.out.println(table.getValueAt(selectedRows[i], j));
-*/
-            String query = "UPDATE \"Model\" SET \"id_modelu\" = ?, \"nazwa\" = ? WHERE \"id_modelu\" = ?";
+            String query = "UPDATE \"Typ_pojazdu\" SET \"id_typu_pojazdu\" = ?, \"typ\" = ? WHERE \"id_typu_pojazdu\" = ?";
             try {
                 DriverManager.registerDriver(new OracleDriver());
             } catch (SQLException e) {
@@ -129,29 +94,10 @@ public class Table extends JPanel {
                 ps.setString(2, table.getValueAt(selectedRows[i], 1).toString());
                 ps.setInt(3, ids[selectedRows[i]]);
                 ps.executeQuery();
-/*
-                System.out.println(query);
-                System.out.println(table.getValueAt(selectedRows[i], 0).toString());
-                System.out.println(table.getValueAt(selectedRows[i], 1).toString());
-                for (int j = 0; j < selectedRows.length; j++)
-                    System.out.println("Selected row: " + selectedRows[j]);
-                for (int j = 0; j < selectedRows.length; j++)
-                    System.out.println("Value at " + j + " : " + ids[selectedRows[j]]);
-*/
             } catch (Exception e) {
                 throw new SQLException(e);
             }
         }
-/*
-        for (int i = 0; i < selectedRows.length; i++)
-            for (int j = 0; j < table.getColumnCount(); j++)
-                System.out.println(table.getValueAt(table.getSelectedRows()[i], j));
-*/
-//                System.out.println(i + ". " + selectedRows[i]);
-//        ResultSet rs;
-
-//        int id = Integer.parseInt(idField.getText());
-//        String name = nameField.getText();
     }
 
     private void delete() throws SQLException {
@@ -162,7 +108,7 @@ public class Table extends JPanel {
         int[] selectedRows = table.getSelectedRows();
 
         for (int i = 0; i < selectedRows.length; i++) {
-            String query = "DELETE FROM \"Model\" WHERE \"id_modelu\" = ?";
+            String query = "DELETE FROM \"Typ_pojazdu\" WHERE \"id_typu_pojazdu\" = ?";
             try {
                 DriverManager.registerDriver(new OracleDriver());
             } catch (SQLException e) {
@@ -175,8 +121,6 @@ public class Table extends JPanel {
                 ps = connection.prepareStatement(query);
                 ps.setInt(1, ids[selectedRows[i]]);
                 ps.executeQuery();
-//                System.out.println(query);
-//                System.out.println(ids[selectedRows[i]]);
             } catch (Exception e) {
                 throw new SQLException(e);
             }
@@ -185,9 +129,9 @@ public class Table extends JPanel {
 
     private static void showTable(JTable table) {
         UIManager.put("swing.boldMetal", Boolean.FALSE);
-        JFrame frame = new JFrame("Table");
+        JFrame frame = new JFrame("ModelTable");
 
-        Table tablePane = new Table(table);
+        TypPojazduTable tablePane = new TypPojazduTable(table);
         tablePane.setOpaque(true);
 
         frame.setContentPane(tablePane);
