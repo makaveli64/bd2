@@ -11,6 +11,7 @@ public class Main extends JFrame {
     JButton modelButton;
     JButton typPojazduButton;
     JButton pojazdButton;
+    JButton przegladButton;
 
     public Main() {
         initComponents();
@@ -23,10 +24,12 @@ public class Main extends JFrame {
         modelButton = new JButton();
         typPojazduButton = new JButton();
         pojazdButton = new JButton();
+        przegladButton = new JButton();
 
         modelButton.setText("Model");
         typPojazduButton.setText("Typ pojazdu");
         pojazdButton.setText("Pojazd");
+        przegladButton.setText("Planowanie przeglądu");
 
         modelButton.addActionListener(new ActionListener() {
             @Override
@@ -46,6 +49,12 @@ public class Main extends JFrame {
                 Pojazd.start();
             }
         });
+        przegladButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                Pojazd.start();
+            }
+        });
 
         GroupLayout layout = new GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -59,7 +68,9 @@ public class Main extends JFrame {
                                         .addGroup(layout.createSequentialGroup()
                                                 .addComponent(typPojazduButton))
                                         .addGroup(layout.createSequentialGroup()
-                                                .addComponent(pojazdButton)))
+                                                .addComponent(pojazdButton))
+                                        .addGroup(layout.createSequentialGroup()
+                                                .addComponent(przegladButton)))
                                 .addContainerGap(27, Short.MAX_VALUE))
         );
 
@@ -75,6 +86,9 @@ public class Main extends JFrame {
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                         .addComponent(pojazdButton))
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                        .addComponent(przegladButton))
                                 .addContainerGap(21, Short.MAX_VALUE))
         );
 
