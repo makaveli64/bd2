@@ -18,6 +18,9 @@ public class PojazdTable extends JPanel {
     JButton deleteButton;
     JButton planSerwisowyButton;
 
+    JComboBox modelComboBox;
+    JComboBox typPojazduComboBox;
+
     String[] rejestracje;
     Vector<String> columnNames;
     Vector<Vector> data;
@@ -208,7 +211,7 @@ public class PojazdTable extends JPanel {
 
     private static void showTable(JTable table) {
         UIManager.put("swing.boldMetal", Boolean.FALSE);
-        JFrame frame = new JFrame("ModelTable");
+        JFrame frame = new JFrame("Pojazd table");
 
         PojazdTable tablePane = new PojazdTable(table);
         tablePane.setOpaque(true);
