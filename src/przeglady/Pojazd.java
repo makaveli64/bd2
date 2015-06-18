@@ -27,6 +27,8 @@ public class Pojazd extends JFrame {
     JButton selectButton;
     JButton insertButton;
 
+    JComboBox modelComboBox;
+    JComboBox typPojazduComboBox;
     JTable table;
 
     Vector<String> columnNames;
@@ -53,6 +55,49 @@ public class Pojazd extends JFrame {
 
         insertButton = new JButton();
         selectButton = new JButton();
+
+        JDBCConnector connector = new JDBCConnector();
+        Connection connection;
+
+        PreparedStatement ps;
+        ResultSet rs;
+
+        Vector<String> models;// = new Vector<String>();
+        Vector<String> typyPojazdu;
+
+        try {
+            String query = "SELECT * FROM \"Model\"";
+            connection = connector.getConnection();
+            ps = connection.prepareStatement(query);
+            rs = ps.executeQuery();
+//            columnNames = new Vector<String>();
+            models = new Vector<String>();
+
+            if (rs != null)
+                while (rs.next())
+                    models.add(rs.getString(2));
+
+            modelComboBox = new JComboBox(models);
+/*
+            for (int i = 0; i < models.size(); i++)
+                System.out.println(models.get(i));
+            for (int i = 0; i < models.size(); i++)
+                modelComboBox.addItem(models.get(i));
+*/
+            query = "SELECT * FROM \"Typ_pojazdu\"";
+            ps = connection.prepareStatement(query);
+            rs = ps.executeQuery();
+            typyPojazdu = new Vector<String>();
+
+            if (rs != null)
+                while (rs.next())
+                    typyPojazdu.add(rs.getString(2));
+
+            typPojazduComboBox = new JComboBox(typyPojazdu);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
 
         rejestracjaLabel.setText("Rejestracja pojazdu: ");
         modelLabel.setText("Identyfikator modelu: ");
@@ -99,11 +144,11 @@ public class Pojazd extends JFrame {
                                         .addGroup(layout.createSequentialGroup()
                                                 .addComponent(modelLabel)
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(modelField))
+                                                .addComponent(modelComboBox))
                                         .addGroup(layout.createSequentialGroup()
                                                 .addComponent(typPojazduLabel)
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(typPojazduField))
+                                                .addComponent(typPojazduComboBox))
                                         .addGroup(layout.createSequentialGroup()
                                                 .addComponent(dataProdukcjiLabel)
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
@@ -115,7 +160,7 @@ public class Pojazd extends JFrame {
                                 .addContainerGap(27, Short.MAX_VALUE))
         );
 
-        layout.linkSize(SwingConstants.HORIZONTAL, new Component[] {selectButton, typPojazduField, modelField});
+        layout.linkSize(SwingConstants.HORIZONTAL, new Component[] {selectButton, typPojazduComboBox, modelComboBox});
 
         layout.setVerticalGroup(
                 layout.createParallelGroup(GroupLayout.Alignment.LEADING)
@@ -126,11 +171,11 @@ public class Pojazd extends JFrame {
                                         .addComponent(rejestracjaLabel))
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                        .addComponent(modelField)
+                                        .addComponent(modelComboBox)
                                         .addComponent(modelLabel))
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                        .addComponent(typPojazduField)
+                                        .addComponent(typPojazduComboBox)
                                         .addComponent(typPojazduLabel))
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
@@ -153,10 +198,14 @@ public class Pojazd extends JFrame {
         PreparedStatement ps;
 
         String rejestracja = rejestracjaField.getText();
-        int model = Integer.parseInt(modelField.getText());
-        int typPojazdu = Integer.parseInt(typPojazduField.getText());
+        String model = (String) modelComboBox.getSelectedItem();
+        String typPojazdu = (String) typPojazduComboBox.getSelectedItem();
         String dataProdukcji = dataProdukcjiField.getText();
-        String query = "INSERT INTO \"Pojazd\" (\"rejestracja\", \"id_modelu\", \"id_typu_pojazdu\", \"data_produkcji\") VALUES (?, ?, ?, ?)";
+        String query = "INSERT INTO \"Pojazd\" (\"rejestracja\", \"id_modelu\", \"id_typu_pojazdu\", \"data_produkcji\")" +
+                "VALUES (?," +
+                "(SELECT \"id_modelu\" FROM \"Model\" WHERE \"nazwa\" LIKE ? AND ROWNUM = 1)," +
+                "(SELECT \"id_typu_pojazdu\" FROM \"Typ_pojazdu\" WHERE \"typ\" LIKE ? AND ROWNUM = 1)," +
+                "?)";
 
         try {
             DriverManager.registerDriver(new OracleDriver());
@@ -166,11 +215,13 @@ public class Pojazd extends JFrame {
         }
 
         try {
+//            System.out.println(model);
+//            System.out.println(typPojazdu);
             connection = connector.getConnection();
             ps = connection.prepareStatement(query);
             ps.setString(1, rejestracja);
-            ps.setInt(2, model);
-            ps.setInt(3, typPojazdu);
+            ps.setString(2, "%" + model + "%");
+            ps.setString(3, "%" + typPojazdu + "%");
             ps.setString(4, dataProdukcji);
             ps.executeQuery();
         } catch (Exception e) {
@@ -185,8 +236,8 @@ public class Pojazd extends JFrame {
         boolean isDataProdukcjiCorrect = false;
 
         String rejestracja = "";
-        int model = 0;
-        int typPojazdu = 0;
+        String model = "";
+        String typPojazdu = "";
         String dataProdukcji = "";
 
         if (rejestracjaField.getText() != null) {
@@ -196,25 +247,21 @@ public class Pojazd extends JFrame {
             }
         }
 
-        if (modelField.getText() != null) {
-            if (!modelField.getText().equals("")) {
-                try {
-                    model = Integer.parseInt(modelField.getText());
-                    isModelCorrect = true;
-                } catch (NumberFormatException e) {
-                    throw new Exception("Incorrect value: " + modelField.getText());
-                }
+        if (modelComboBox.getSelectedItem() != null) {
+            try {
+                model = (String) modelComboBox.getSelectedItem();
+                isModelCorrect = true;
+            } catch (NumberFormatException e) {
+                throw new Exception("Incorrect value: " + modelComboBox.getSelectedItem());
             }
         }
 
-        if (typPojazduField.getText() != null) {
-            if (!typPojazduField.getText().equals("")) {
-                try {
-                    typPojazdu = Integer.parseInt(typPojazduField.getText());
-                    isTypPojazduCorrect = true;
-                } catch (NumberFormatException e) {
-                    throw new Exception("Incorrect value: " + typPojazduField.getText());
-                }
+        if (typPojazduComboBox.getSelectedItem() != null) {
+            try {
+                typPojazdu = (String) typPojazduComboBox.getSelectedItem();
+                isTypPojazduCorrect = true;
+            } catch (NumberFormatException e) {
+                throw new Exception("Incorrect value: " + typPojazduComboBox.getSelectedItem());
             }
         }
 
@@ -256,14 +303,14 @@ public class Pojazd extends JFrame {
             if (isModelCorrect) {
                 if (isRejestracjaCorrect)
                     query += " AND ";
-                query += " \"id_modelu\" = ?";
+                query += " \"id_modelu\" = (SELECT \"id_modelu\" FROM \"Model\" WHERE \"nazwa\" LIKE ? AND ROWNUM = 1)";
                 columns[1] = true;
             }
 
             if (isTypPojazduCorrect) {
                 if (isRejestracjaCorrect || isModelCorrect)
                     query += " AND ";
-                query += " \"id_typu_pojazdu\" = ?";
+                query += " \"id_typu_pojazdu\" = (SELECT \"id_typu_pojazdu\" FROM \"Typ_pojazdu\" WHERE \"typ\" LIKE ? AND ROWNUM = 1)";
                 columns[2] = true;
             }
 
@@ -281,14 +328,13 @@ public class Pojazd extends JFrame {
                     if (i == 0)
                         ps.setString(c++, "%" + rejestracja + "%");
                     else if (i == 1)
-                        ps.setInt(c++, model);
+                        ps.setString(c++, "%" + model + "%");
                     else if (i == 2)
-                        ps.setInt(c++, typPojazdu);
+                        ps.setString(c++, "%" + typPojazdu + "%");
                     else if (i == 3)
                         ps.setString(c++, "%" + dataProdukcji + "%");
                     else
                         break;
-
 //            System.out.println(rejestracja);
 //            System.out.println(query);
             rs = ps.executeQuery();
