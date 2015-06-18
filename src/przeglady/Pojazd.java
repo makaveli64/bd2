@@ -3,6 +3,7 @@ package przeglady;
 import oracle.jdbc.driver.OracleDriver;
 
 import javax.swing.*;
+import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
@@ -12,6 +13,8 @@ import java.util.Vector;
  * Created by user
  */
 public class Pojazd extends JFrame {
+    JTable table;
+
     JTextField rejestracjaField;
     JLabel rejestracjaLabel;
 
@@ -29,7 +32,6 @@ public class Pojazd extends JFrame {
 
     JComboBox modelComboBox;
     JComboBox typPojazduComboBox;
-    JTable table;
 
     Vector<String> columnNames;
     Vector<Vector> data;
@@ -347,8 +349,15 @@ public class Pojazd extends JFrame {
 
                 while (rs.next()) {
                     column = new Vector<Object>();
-                    for (int i = 1; i < md.getColumnCount() + 1; i++)
-                        column.add(rs.getString(i));
+                    for (int i = 1; i < md.getColumnCount() + 1; i++) {
+                        if (i == 2)
+                            column.add(model);
+                        else if (i == 3)
+                            column.add(typPojazdu);
+                        else
+                            column.add(rs.getString(i));
+                    }
+
                     data.add(column);
                 }
 
@@ -360,7 +369,13 @@ public class Pojazd extends JFrame {
                 else
                     columnNames.add("No rows extracted");
 
+                columnNames.set(1, "model");
+                columnNames.set(2, "typ pojazdu");
                 table = new JTable(data, columnNames);
+                TableColumn modelColumn = table.getColumnModel().getColumn(1);
+                modelColumn.setCellEditor(new DefaultCellEditor(modelComboBox));
+                TableColumn typPojazduColumn = table.getColumnModel().getColumn(2);
+                typPojazduColumn.setCellEditor(new DefaultCellEditor(typPojazduComboBox));
                 PojazdTable.start(table);
             }
         } catch (Exception e) {
