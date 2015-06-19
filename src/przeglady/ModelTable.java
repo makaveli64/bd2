@@ -77,7 +77,7 @@ public class ModelTable extends JPanel {
                                         .addGroup(layout.createSequentialGroup()
                                                 .addComponent(this.table))
                                         .addGroup(layout.createSequentialGroup()
-                                                .addComponent(updateButton)
+                                                .addComponent(insertButton)
                                                 .addComponent(deleteButton)))
                                 .addContainerGap(27, Short.MAX_VALUE))
         );
@@ -90,7 +90,7 @@ public class ModelTable extends JPanel {
                                         .addComponent(this.table))
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                        .addComponent(updateButton)
+                                        .addComponent(insertButton)
                                         .addComponent(deleteButton))
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                 .addContainerGap(21, Short.MAX_VALUE))

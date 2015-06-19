@@ -4,14 +4,15 @@ import oracle.jdbc.OracleDriver;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.*;
 import java.util.Vector;
 
 /**
  * Created by user
  */
-public class PojazdTable extends JPanel {
+public class Operacje extends JPanel {
     JTable table;
 
     JButton updateButton;
@@ -22,10 +23,14 @@ public class PojazdTable extends JPanel {
     Vector<String> columnNames;
     Vector<Vector> data;
 
-    PojazdTable(JTable table) {
+    int przebieg;
+
+    Operacje(int przebieg) {
         super();
 
-        this.table = table;
+        this.przebieg = przebieg;
+
+        this.table = new JTable();
         this.table.setPreferredScrollableViewportSize(new Dimension(500, 70));
         this.table.setFillsViewportHeight(true);
 
@@ -50,16 +55,17 @@ public class PojazdTable extends JPanel {
         add(buttonPanel);
         add(buttonPanel2);
 
-        rejestracje = new String[this.table.getRowCount()];
 
-        for (int i = 0; i < rejestracje.length; i++)
-            rejestracje[i] = this.table.getValueAt(i, 0).toString();
+//        rejestracje = new String[this.table.getRowCount()];
+
+//        for (int i = 0; i < rejestracje.length; i++)
+//            rejestracje[i] = this.table.getValueAt(i, 0).toString();
 
         updateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 try {
-                    update();
+                    wyswietl();
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
@@ -87,20 +93,25 @@ public class PojazdTable extends JPanel {
                 }
             }
         });
+
+        try {
+            wyswietl();
+        } catch (SQLException e) {
+
+        };
     }
 
-    private void update() throws SQLException {
+    private void wyswietl() throws SQLException {
         JDBCConnector connector = new JDBCConnector();
         Connection connection;
         PreparedStatement ps;
 
-        String query = "UPDATE \"Pojazd\"" +
-                "SET \"rejestracja\" = ?," +
-                "\"id_modelu\" = (SELECT \"id_modelu\" FROM \"Model\" WHERE \"nazwa\" LIKE ? AND ROWNUM = 1)," +
-                "\"id_typu_pojazdu\" = (SELECT \"id_typu_pojazdu\" FROM \"Typ_pojazdu\" WHERE \"typ\" LIKE ? AND ROWNUM = 1)," +
-                "\"data_produkcji\" = ? WHERE \"rejestracja\" = ?";
+        String query = "SELECT \"Operacja\".\"czynnosc\"" +
+                "FROM \"Operacja\" NATURAL JOIN \"Pozycja_planu_serwisowego\"" +
+                "WHERE \"Pozycja_planu_serwisowego\".\"przebieg\" = ?";
 
-        int[] selectedRows = table.getSelectedRows();
+        int[] selectedRows = new int[1];
+        selectedRows[0] = przebieg;
 
         for (int i = 0; i < selectedRows.length; i++) {
             try {
@@ -113,19 +124,30 @@ public class PojazdTable extends JPanel {
             try {
                 connection = connector.getConnection();
                 ps = connection.prepareStatement(query);
-                ps.setString(1, table.getValueAt(selectedRows[i], 0).toString());
-                ps.setString(2, "%" + table.getValueAt(selectedRows[i], 1).toString() + "%");
-                ps.setString(3, "%" + table.getValueAt(selectedRows[i], 2).toString() + "%");
+                ps.setInt(1, przebieg);
+//                ps.setString(2, "%" + table.getValueAt(selectedRows[i], 1).toString() + "%");
+//                ps.setString(3, "%" + table.getValueAt(selectedRows[i], 2).toString() + "%");
 
+/*
                 if (table.getValueAt(selectedRows[i], 3) != null)
                     ps.setString(4, table.getValueAt(selectedRows[i], 3).toString());
                 else
                     ps.setString(4, "");
 
                 ps.setString(5, rejestracje[selectedRows[i]]);
-                System.out.println("execute");
-                ps.executeQuery();
+*/
+                System.out.println("execute operation");
+                System.out.println(przebieg);
+                ResultSet rs = ps.executeQuery();
                 System.out.println("after");
+                rs.next();
+                columnNames.add("Wartość");
+                Vector<String> v = new Vector<String>();
+                v.add(rs.getString(1));
+                data.add(v);
+                this.table = new JTable(data, columnNames);
+                PojazdTable.start(this.table);
+//                System.out.println(rs.getString(1));
             } catch (Exception e) {
                 throw new SQLException("ERROR\nEmpty value");
             }
@@ -232,11 +254,11 @@ public class PojazdTable extends JPanel {
         }
     }
 
-    private static void showTable(JTable table) {
+    private static void showTable(int przebieg) {
         UIManager.put("swing.boldMetal", Boolean.FALSE);
-        JFrame frame = new JFrame("Pojazd table");
+        JFrame frame = new JFrame("Operacje table");
 
-        PojazdTable tablePane = new PojazdTable(table);
+        Operacje tablePane = new Operacje(przebieg);
         tablePane.setOpaque(true);
 
         frame.setContentPane(tablePane);
@@ -244,11 +266,12 @@ public class PojazdTable extends JPanel {
         frame.setVisible(true);
     }
 
-    public static void start(final JTable table) {
+    public static void start(final int przebieg) {
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                showTable(table);
+                System.out.println(przebieg);
+                showTable(przebieg);
             }
         });
     }
