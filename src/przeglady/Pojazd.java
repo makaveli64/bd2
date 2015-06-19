@@ -121,7 +121,7 @@ public class Pojazd extends JFrame {
             query = "SELECT * FROM \"Typ_pojazdu\"";
             ps = connection.prepareStatement(query);
             rs = ps.executeQuery();
-            typyPojazdu = new Vector<String>();
+//            typyPojazdu = new Vector<String>();
 
             if (rs != null)
                 while (rs.next())

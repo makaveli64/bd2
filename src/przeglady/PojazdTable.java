@@ -22,6 +22,9 @@ public class PojazdTable extends JPanel {
     Vector<String> columnNames;
     Vector<Vector> data;
 
+    JDBCConnector connector = new JDBCConnector();
+    Connection connection;
+
     PojazdTable(JTable table) {
         super();
 
@@ -49,12 +52,11 @@ public class PojazdTable extends JPanel {
 
         add(buttonPanel);
         add(buttonPanel2);
-
+/*
         rejestracje = new String[this.table.getRowCount()];
-
         for (int i = 0; i < rejestracje.length; i++)
             rejestracje[i] = this.table.getValueAt(i, 0).toString();
-
+*/
         updateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -123,9 +125,7 @@ public class PojazdTable extends JPanel {
                     ps.setString(4, "");
 
                 ps.setString(5, rejestracje[selectedRows[i]]);
-                System.out.println("execute");
                 ps.executeQuery();
-                System.out.println("after");
             } catch (Exception e) {
                 throw new SQLException("ERROR\nEmpty value");
             }
@@ -137,10 +137,10 @@ public class PojazdTable extends JPanel {
         Connection connection;
         PreparedStatement ps;
 
+        String query = "DELETE FROM \"Pojazd\" WHERE \"rejestracja\" = ?";
         int[] selectedRows = table.getSelectedRows();
 
         for (int i = 0; i < selectedRows.length; i++) {
-            String query = "DELETE FROM \"Pojazd\" WHERE \"rejestracja\" = ?";
             try {
                 DriverManager.registerDriver(new OracleDriver());
             } catch (SQLException e) {
@@ -160,18 +160,13 @@ public class PojazdTable extends JPanel {
     }
 
     private void planSerwisowy() throws Exception {
-        JDBCConnector connector = new JDBCConnector();
-        Connection connection;
         PreparedStatement ps;
         ResultSet rs;
         ResultSetMetaData md;
-
         int[] selectedRows = table.getSelectedRows();
-//        System.out.println(selectedRows.length);
 
         if (selectedRows.length != 1)
             throw new Exception("Należy wybrać jeden pojazd");
-
 /*
         String query = "SELECT \"przebieg\" FROM \"Pozycja_planu_serwisowego\" PPS " +
                 "JOIN \"Pojazd\" P ON PPS.\"id_modelu\" = P.\"id_modelu\" " +
@@ -189,18 +184,11 @@ public class PojazdTable extends JPanel {
             System.exit(-1);
         }
 
-//        for (int i = 0; i < selectedRows.length; i++)
-//            System.out.println(String.valueOf(selectedRows[i]));
-
-        System.out.println(table.getValueAt(selectedRows[0], 1));
-//        System.out.println(rejestracje[selectedRows[0]]);
         try {
             connection = connector.getConnection();
             ps = connection.prepareStatement(query);
-//            ps.setString(1, rejestracje[selectedRows[0]]);
             ps.setString(1, table.getValueAt(selectedRows[0], 1).toString());
             rs = ps.executeQuery();
-            System.out.println("query");
 
             columnNames = new Vector<String>();
             data = new Vector<Vector>();
@@ -212,8 +200,8 @@ public class PojazdTable extends JPanel {
                 while (rs.next()) {
                     column = new Vector<Object>();
                     column.add(rs.getString(1));
+//                    System.out.println(rs.getString(1));
                     data.add(column);
-//                    data.add(rs.getString(4));
                 }
 
                 for (int i = 1; i < md.getColumnCount() + 1; i++)
@@ -225,7 +213,7 @@ public class PojazdTable extends JPanel {
                     columnNames.add("No rows extracted");
 
                 table = new JTable(data, columnNames);
-                PrzegladyTable.start(table);
+                PrzebiegiTable.start(table);
             }
         } catch (Exception e) {
             throw new SQLException(e);
